@@ -44,7 +44,7 @@ for f_dist in f_distances:
 
     # std of image
     image_std = 0.0
-    for i in range(1, images_num):
+    for i in range(0, images_num):
         image_cur = images[i].astype(float) / 255.0
         image_std += ((image_cur[:,:] - images_mean)**2).sum() / (image_cur.shape[0]*image_cur.shape[1])
     
@@ -71,9 +71,11 @@ for f_dist in f_distances:
     cv2.imwrite(str(Path().absolute()) + '/roi3/' + str(f_dist) + '.png', image_roi)
 
 # 4. Нахождение производных
+diffs, row_diffs, col_diffs, all_diffs = [], [], [], []
 for roi_dir in ['/roi1', '/roi2', '/roi3']:
     dir_path = str(Path().absolute()) + roi_dir
 
+    roi_diffs, roi_row_diffs, roi_col_diffs, roi_all_diffs = [], [], [], []
     for f_dist in f_distances:
         print("! f = " + str(f_dist))
 
@@ -82,31 +84,47 @@ for roi_dir in ['/roi1', '/roi2', '/roi3']:
         image_array = np.asarray( image[:,:] )
 
         # 4.1 разложение матрицы в вектор
-        diff = np.diff(image_array.reshape((1, image_array.size)))
-        print(diff.sum() / image_array.size)
+        diff = np.array([abs(i) for i in np.diff(image_array.reshape((1, image_array.size)))])
+        diff = (diff.sum() / image_array.size)
+        roi_diffs.append(diff)
+        print(diff)
 
         # 4.2 проход вдоль .. строк?
         rows, cols = image_array.shape
-        row_diff = np.zeros((1, cols - 1))
+        row_diff = np.zeros(cols - 1)
         for row in image_array:
-            row_diff += np.diff(row, 1)
+            row_diff += [abs(i) for i in np.diff(row, 1)]
         
-        print(row_diff.sum() / image_array.size)
+        row_diff = (row_diff.sum() / image_array.size)
+        roi_row_diffs.append(row_diff)
+        print(row_diff)
             
         # 4.3 проход вдоль .. столбцов???
-        col_diff = np.zeros((1, rows - 1))
+        col_diff = np.zeros(rows - 1)
         for col in image_array.transpose():
-            col_diff += np.diff(col, 1)
+            col_diff += [abs(i) for i in np.diff(col, 1)]
         
-        print(col_diff.sum() / image_array.size)
+        col_diff = (col_diff.sum() / image_array.size)
+        roi_col_diffs.append(col_diff)
+        print(col_diff)
 
         # 4.4 проход по обоим направлениям
+        """
         all_diff = 0
         for i in range(0, rows):
             for j in range(0, cols - 1):
                 all_diff += abs( image_array[i][j] - image_array[i][j + 1] )
 
-        print(all_diff / image_array.size)
+        print(all_diff / image_array.size)"""
+        all_diff = row_diff + col_diff
+        roi_all_diffs.append(all_diff)
+        print(all_diff)
+
+    #  diffs[roi_type][f_distance_num]
+    diffs.append(roi_diffs)
+    row_diffs.append(roi_row_diffs)
+    col_diffs.append(roi_col_diffs)
+    all_diffs.append(roi_all_diffs)
         
 '''
 ЕЩЁ не сделано:
