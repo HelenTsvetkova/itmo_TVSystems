@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 save_dir_path = str(Path().absolute()) + '/mean/'
 if not os.path.exists(save_dir_path):
@@ -125,13 +126,25 @@ for roi_dir in ['/roi1', '/roi2', '/roi3']:
     row_diffs.append(roi_row_diffs)
     col_diffs.append(roi_col_diffs)
     all_diffs.append(roi_all_diffs)
-        
+
+#print(row_diffs)
+x_ = range(len(f_distances))
+f_distances_labels = [str(i) for i in f_distances]
+f_distances_labels[11] = '∞'
+for i in range(3):
+    #fig, ax = plt.subplots()
+    #fig.canvas.draw()
+    plt.plot(x_, diffs[i], 'r', x_, row_diffs[i], 'g', x_, col_diffs[i], 'b', x_, all_diffs[i], 'purple')
+    plt.xticks(x_, f_distances_labels)
+    plt.ylabel('Детальность, отн.ед.')
+    plt.xlabel('Фокусное расстояние, м')
+    plt.title(f'Roi {i+1}')
+    plt.grid(True)
+    plt.legend(['Vector diff', 'Row diff', 'Col diff', 'All diff'])
+    plt.show()
 '''
 ЕЩЁ не сделано:
 
-3.6.
-Постройте графики зависимости детальности от дальности
-фокусировки, используйте функцию plot.
 3.7.
 Постройте графики, показывающие время обработки каждого из
 способов нахождения детальности от количества элементов: воспользуйтесь
