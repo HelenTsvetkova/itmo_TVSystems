@@ -1,8 +1,11 @@
 import os
+import time
+import statistics
 from pathlib import Path
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from utils import compute_diffs
 
 save_dir_path = str(Path().absolute()) + '/mean/'
 if not os.path.exists(save_dir_path):
@@ -77,59 +80,35 @@ for f_dist in f_distances:
 
 # 4. Нахождение производных
 diffs, row_diffs, col_diffs, all_diffs = [], [], [], []
+t1, t2, t3, t4 = [], [], [], []
 for roi_dir in ['/roi1', '/roi2', '/roi3']:
     dir_path = str(Path().absolute()) + roi_dir
 
     roi_diffs, roi_row_diffs, roi_col_diffs, roi_all_diffs = [], [], [], []
     for f_dist in f_distances:
-        print("! f = " + str(f_dist))
-
         image_path = dir_path + '/' + str(f_dist) + '.png'
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-        image_array = np.asarray( image[:,:] )
 
-        # 4.1 разложение матрицы в вектор
-        diff = np.array([abs(i) for i in np.diff(image_array.reshape((1, image_array.size)))])
-        diff = (diff.sum() / image_array.size)
+        ([diff, row_diff, col_diff, all_diff], [t1_, t2_, t3_, t4_ ]) = compute_diffs(image=image)
+
         roi_diffs.append(diff)
-        print(diff)
-
-        # 4.2 проход вдоль .. строк?
-        rows, cols = image_array.shape
-        row_diff = np.zeros(cols - 1)
-        for row in image_array:
-            row_diff += [abs(i) for i in np.diff(row, 1)]
-        
-        row_diff = (row_diff.sum() / image_array.size)
         roi_row_diffs.append(row_diff)
-        print(row_diff)
-            
-        # 4.3 проход вдоль .. столбцов???
-        col_diff = np.zeros(rows - 1)
-        for col in image_array.transpose():
-            col_diff += [abs(i) for i in np.diff(col, 1)]
-        
-        col_diff = (col_diff.sum() / image_array.size)
         roi_col_diffs.append(col_diff)
-        print(col_diff)
-
-        # 4.4 проход по обоим направлениям
-        """
-        all_diff = 0
-        for i in range(0, rows):
-            for j in range(0, cols - 1):
-                all_diff += abs( image_array[i][j] - image_array[i][j + 1] )
-
-        print(all_diff / image_array.size)"""
-        all_diff = row_diff + col_diff
         roi_all_diffs.append(all_diff)
-        print(all_diff)
+        t1.append(t1_)
+        t2.append(t2_)
+        t3.append(t3_)
+        t4.append(t4_)
 
-    #  diffs[roi_type][f_distance_num]
     diffs.append(roi_diffs)
     row_diffs.append(roi_row_diffs)
     col_diffs.append(roi_col_diffs)
     all_diffs.append(roi_all_diffs)
+
+print("1 mean time = " + str(statistics.median(t1)))
+print("2 mean time = " + str(statistics.median(t2)))
+print("3 mean time = " + str(statistics.median(t3)))
+print("4 mean time = " + str(statistics.median(t4)))
 
 #print(row_diffs)
 x_ = range(len(f_distances))
@@ -147,6 +126,7 @@ for i in range(3):
     plt.legend(['Vector diff', 'Row diff', 'Col diff', 'All diff'])
     plt.savefig(str(Path().absolute()) + '/plots/roi' + str(i + 1) + '.png')
     plt.close()
+
 '''
 ЕЩЁ не сделано:
 
