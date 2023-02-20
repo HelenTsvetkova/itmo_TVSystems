@@ -20,6 +20,10 @@ save_dir_path = str(Path().absolute()) + '/roi3/'
 if not os.path.exists(save_dir_path):
    os.makedirs(save_dir_path)
 
+save_dir_path = str(Path().absolute()) + '/plots/'
+if not os.path.exists(save_dir_path):
+   os.makedirs(save_dir_path)
+
 # 1. фокусная дистанция
 f_distances = [0.4, 0.5, 0.6, 0.7, 0.8, 1, 1.2, 1.5, 2, 4, 8, 'Бесконечность']
 
@@ -141,7 +145,8 @@ for i in range(3):
     plt.title(f'Roi {i+1}')
     plt.grid(True)
     plt.legend(['Vector diff', 'Row diff', 'Col diff', 'All diff'])
-    plt.show()
+    plt.savefig(str(Path().absolute()) + '/plots/roi' + str(i + 1) + '.png')
+    plt.close()
 '''
 ЕЩЁ не сделано:
 
