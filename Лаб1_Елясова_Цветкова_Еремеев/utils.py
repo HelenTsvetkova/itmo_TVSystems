@@ -9,7 +9,8 @@ def compute_diffs(image):
     start_time = time.time()
     diff = np.array([abs(i) for i in np.diff(image_array.reshape((1, image_array.size)))])
     diff = (diff.sum() / image_array.size)
-    t1 = start_time - time.time()
+    end_time = time.time()
+    t1 = end_time - start_time
 
     # 2 проход вдоль .. строк?
     start_time = time.time()
@@ -19,7 +20,8 @@ def compute_diffs(image):
         row_diff += [abs(i) for i in np.diff(row, 1)]
 
     row_diff = (row_diff.sum() / image_array.size)
-    t2 = start_time - time.time()
+    end_time = time.time()
+    t2 = end_time - start_time
         
     # 3 проход вдоль .. столбцов???
     start_time = time.time()
@@ -28,11 +30,13 @@ def compute_diffs(image):
         col_diff += [abs(i) for i in np.diff(col, 1)]
 
     col_diff = (col_diff.sum() / image_array.size)
-    t3 = start_time - time.time()
+    end_time = time.time()
+    t3 = end_time - start_time
 
     # 4 проход по обоим направлениям
     start_time = time.time()
     all_diff = row_diff + col_diff 
-    t4 = start_time - time.time() + t2 + t3
+    end_time = time.time()
+    t4 = end_time - start_time + t2 + t3
 
-    return ([diff, row_diff, col_diff, all_diff], [t1, t2, t3, t4])
+    return ([diff, row_diff, col_diff, all_diff], [abs(t1), abs(t2), abs(t3), abs(t4)])
