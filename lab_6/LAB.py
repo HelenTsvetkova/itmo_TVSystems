@@ -8,10 +8,18 @@ if not os.path.exists(save_dir_path):
    os.makedirs(save_dir_path)
 
 dir_path = "./data/"
-image_name = "1.bmp"
 
-image_cv2 = cv2.imread(dir_path + image_name, cv2.IMREAD_GRAYSCALE)
-image = np.asarray(image_cv2[:,:])
+images_paths = [dir_path + '/' + path for path in os.listdir(dir_path)]
+images = [cv2.imread(image_path, cv2.IMREAD_GRAYSCALE) for image_path in images_paths]
+assert(len(images) == 10)
+
+images_mean = images[0]
+for i in range(1, len(images)):
+    alpha = 1.0/(i + 1)
+    beta = 1.0 - alpha
+    images_mean = cv2.addWeighted(images[i], alpha, images_mean, beta, 0.0)
+
+image = np.asarray(images_mean[:,:])
 rows, cols = image.shape
 
 for roi_width in range(1, 4):
